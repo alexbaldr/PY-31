@@ -1,0 +1,1 @@
+2020-07-06 20:53:05.264691	Contact	Jorg, Mihaile, +7177511156{'email': 'jm@mail.ru'}C:\Users\Алекс\Desktop\Git\Py-31\Decorators\log.txt
