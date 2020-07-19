@@ -1,20 +1,20 @@
 import psycopg2 as pg
+from psycopg2 import sql
 
-Student = "Student"
 with pg.connect(database='NewDBforMe', user='NewDBforMe',
     password='1SomePassword2', host='pg.codecontrol.ru', port=59432) as con:
     cur = con.cursor()
-
+    con.autocommit = True
 
 def create_db():  # создает таблицы
 
     cur.execute('''create table if not exists Student(
-        id serial primary key not null,
+        id  integer primary key not null,
         name character varying(100) not null,
         gpa numeric(10,2),
         birth varchar(11)
         );''')
-
+    con.commit()
     cur.execute('''create table if not exists Course(
         id integer primary key not null,
         name character varying(100) not null
@@ -28,13 +28,13 @@ def create_db():  # создает таблицы
 
 
 def del_str(da):
-    cur.execute('''delete from Comunicate where st_id=%s;''', (da))
+    cur.execute('''delete from Student where id=%s;''', (da))
     con.commit()
 
 
 def del_db():
     # удаляет таблицы
-    cur.execute('''drop table Student CASCADE;''')
+    cur.execute('''drop table Student;''')
     con.commit()
 
 
@@ -56,7 +56,7 @@ def add_course(course_id, course_name):  # создает курс
     con.commit()
 
 
-def add_links(course_id, student_id,):  # записывает студентов на курс
+def add_links(course_id, student_id):  # записывает студентов на курс
     cur.execute('''
         insert into Comunicate(st_id, cur_id) values(%s, %s);
         ''', (course_id, student_id,))
@@ -68,6 +68,17 @@ def add_student(student, gpa, birth):  # просто создает студе�
         insert into Student(name, gpa, birth) values(%s, %s, %s);
         ''', (student, gpa, birth,))
     con.commit()
+
+
+def add_students(course_id, student_id, students): # создает студентов и 
+                                       # записывает их на курс
+    cur.execute('''
+        insert into Student(id, name) values(%s, %s);
+        ''', (student_id, students,))
+
+    cur.execute('''
+        insert into Comunicate(cur_id,st_id) values(%s, %s);
+        ''', (course_id, student_id,))
 
 
 def get_all_students_with_course():  # Получаем всех студентов с их курсами
@@ -104,14 +115,6 @@ def get_all_tables():   # Получаем все таблицы.
             ''')
     print(cur.fetchall())
 
+get_all_tables()
+add_students("", "","")
 
-# create_db()
-# del_db()
-# del_str('1')
-# add_student('Artemiy','3.8','1988-12-05')
-# add_course(4, 'Как создать тайное правительство')
-# add_links(3, 4) # student_id, course_id
-# get_students(3)
-# get_student(3)
-# get_all_students_with_course()
-# get_all_tables()
