@@ -9,7 +9,7 @@ with pg.connect(database='NewDBforMe', user='NewDBforMe',
 def create_db():  # создает таблицы
 
     cur.execute('''create table if not exists Student(
-        id  integer primary key not null,
+        id  serial primary key not null,
         name character varying(100) not null,
         gpa numeric(10,2),
         birth varchar(11)
@@ -58,7 +58,7 @@ def add_course(course_id, course_name):  # создает курс
 
 def add_links(course_id, student_id):  # записывает студентов на курс
     cur.execute('''
-        insert into Comunicate(st_id, cur_id) values(%s, %s);
+        insert into Comunicate(cur_id, st_id) values(%s, %s);
         ''', (course_id, student_id,))
     con.commit()
 
@@ -70,15 +70,19 @@ def add_student(student, gpa, birth):  # просто создает студе�
     con.commit()
 
 
-def add_students(course_id, student_id, students): # создает студентов и 
+def add_students(course_id, students): # создает студентов и 
                                        # записывает их на курс
-    cur.execute('''
-        insert into Student(id, name) values(%s, %s);
-        ''', (student_id, students,))
-
-    cur.execute('''
-        insert into Comunicate(cur_id,st_id) values(%s, %s);
-        ''', (course_id, student_id,))
+    for i in students:
+        cur.execute('''
+        insert into Student(name) values(%s);
+        ''', (i,))
+        cur.execute('''
+            select id from Student where name = %s;
+            ''',(i,))
+        for c in cur.fetchone():
+            cur.execute('''
+            insert into Comunicate(cur_id, st_id) values(%s, %s);
+            ''', (course_id, c,))
 
 
 def get_all_students_with_course():  # Получаем всех студентов с их курсами
@@ -115,6 +119,9 @@ def get_all_tables():   # Получаем все таблицы.
             ''')
     print(cur.fetchall())
 
+
+add_students('4', [('Vasiliy'),('Jacky Chan'),])
+#add_student('vinny pooh', '5.2', '1900-11-11')
+
 get_all_tables()
-add_students("", "","")
 
