@@ -14,13 +14,12 @@ def read_data():
     with open ("artists.csv", 'r', encoding="utf8") as fo:    
         reader = csv.reader(fo, delimiter=",")
         art_list = list(reader)
-        concerts_dict = [{"Исполнитель": id[0], 'Цена': id[1], 'Место':id[2], 'Дата':id[3]}for id in art_list[1:]]
+        concerts_dict = [{"Исполнитель": id[0], 'Цена': int(id[1]), 'Место':id[2], 'Дата':id[3]}for id in art_list[1:]]
         result = tickets_col.insert_many(concerts_dict)
         return result.inserted_ids
 
 def find_cheapest():
-    pattern = re.compile (r'\d')
-    for i in tickets_col.find({'Цена': pattern}).sort("Цена", pymongo.ASCENDING):
+    for i in tickets_col.find({}).sort("Цена", pymongo.ASCENDING):
         print (i)
         
 def find_by_name(name):
@@ -30,4 +29,4 @@ def find_by_name(name):
 
 
 print(find_cheapest())
-print(find_by_name("Th"))
+print(find_by_name("T"))
